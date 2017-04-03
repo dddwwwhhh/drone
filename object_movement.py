@@ -8,15 +8,17 @@ import cv2
 # construct the argument parse and parse the arguments
 ap = argparse.ArgumentParser()
 ap.add_argument("-v", "--video",
-	help="path to the (optional) video file")
+	#help="path to the (optional) video file")
+	help="/home/cheng/Desktop/drone/video")
 ap.add_argument("-b", "--buffer", type=int, default=32,
 	help="max buffer size")
 args = vars(ap.parse_args())
 
 # define the lower and upper boundaries of the "green"
-# ball in the HSV color space
-greenLower = (29, 86, 6)
-greenUpper = (100, 255, 255)
+# ball in the HSV color 
+lr,lg,lb=(5,50,50)
+hr,hg,hb=(69,255,255)
+#light green & blue
 
 # initialize the list of tracked points, the frame counter,
 # and the coordinate deltas
@@ -28,7 +30,8 @@ direction = ""
 # if a video path was not supplied, grab the reference
 # to the webcam
 if not args.get("video", False):
-	camera = cv2.VideoCapture(0)
+	print("video False")
+	camera = cv2.VideoCapture(1)
 
 # otherwise, grab a reference to the video file
 else:
@@ -36,6 +39,8 @@ else:
 
 # keep looping
 while True:
+	greenLower = (lr, lg, lb) # dark red
+	greenUpper = (hr, hg, hb) 
 	# grab the current frame
 	(grabbed, frame) = camera.read()
 
@@ -126,18 +131,45 @@ while True:
 	# the frame
 	cv2.putText(frame, direction, (10, 30), cv2.FONT_HERSHEY_SIMPLEX,
 		0.65, (0, 0, 255), 3)
-	cv2.putText(frame, "dx: {}, dy: {}".format(dX, dY),
+	cv2.putText(frame, "dx: {}, dy: {}, lr: {}, lg: {}, lb: {}, hr: {}, hg: {}, hb: {}".format(dX, dY, lr, lg, lb, hr, hg, hb),
 		(10, frame.shape[0] - 10), cv2.FONT_HERSHEY_SIMPLEX,
 		0.35, (0, 0, 255), 1)
 
 	# show the frame to our screen and increment the frame counter
 	cv2.imshow("Frame", frame)
+	cv2.imshow("color",mask)
 	key = cv2.waitKey(1) & 0xFF
 	counter += 1
 
 	# if the 'q' key is pressed, stop the loop
 	if key == ord("q"):
 		break
+	elif key == ord("e"):
+		lr=lr+1
+	elif key == ord("r"):
+		lg=lg+1
+	elif key == ord("t"):
+		lb=lb+1
+	elif key == ord("d"):
+		lr-=1
+	elif key == ord("f"):
+		lg-=1
+	elif key == ord("g"):
+		lb-=1
+	elif key == ord("y"):
+		hr+=1
+	elif key == ord("u"):
+		hg+=1
+	elif key == ord("i"):
+		hb+=1
+	elif key == ord("h"):
+		hr-=1
+	elif key == ord("j"):
+		hg-=1
+	elif key == ord("k"):
+		hb-=1
+
+
 
 # cleanup the camera and close any open windows
 camera.release()
